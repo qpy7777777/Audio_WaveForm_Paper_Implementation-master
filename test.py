@@ -39,5 +39,5 @@ plt.legend() #显示图例
 plt.xlabel('iteration times')
 plt.ylabel('rate')
 plt.show()
-print("finish")
+print("fini")
 #python 一个折装图绘制多个感转
