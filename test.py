@@ -49,7 +49,7 @@ plt.legend(loc='upper right') #显示图例
 plt.xlabel('iteration times')
 plt.ylabel('rate')
 plt.show()
-print("finish")
+
 #python 一个折装图绘制多个感转
 x=np.arange(0,2*np.pi,0.02)
 y=np.sin(x)
@@ -66,3 +66,4 @@ plt.setp(lines[2],linestyle='-',marker='',markersize=4)
 plt.legend(("No mask","Masked if > 0.5","Masked if < -0.5"),loc='upper right')
 plt.title("Masked line demo")
 plt.show()
+print("finish")
