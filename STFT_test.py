@@ -1,4 +1,5 @@
-#https://blog.csdn.net/qq_27825451/article/details/88553441
+# https://blog.csdn.net/qq_27825451/article/details/88553441
+# https://zhuanlan.zhihu.com/p/150705777
 import numpy as np
 from scipy.fftpack import fft,ifft
 import matplotlib.pyplot as plt
@@ -8,7 +9,7 @@ plt.rcParams['axes.unicode_minus'] = False  # 步骤二（解决坐标轴负数�
 # 原始信号的两个正弦波的频率分别为，100Hz、200Hz,最大频率为400赫兹。
 # 根据采样定理，fs至少是200赫兹的2倍，这里选择500赫兹，即在一秒内选择500个点
 fs = 100 # 采样频率fs=500Hz
-N = 200 # 采样点数
+N = 200 # 采样点数 一般是2的n次幂
 n = np.arange(0,N)
 t = np.arange(0, N) * (1.0 / fs)
 # t = np.linspace(0,2,500)
@@ -41,3 +42,4 @@ plt.tight_layout()
 # 长时窗（至少两个基音周期）常被用于计算窄带语谱图，短窗则用于计算宽带语谱图。
 # 窄带语谱图具有较高的频率分辨率和较低的时间分辨率，良好的频率分辨率可以让语音的每个谐波分量更容易被辨别，在语谱图上显示为水平条纹。
 # 宽带语谱图具有较高的时间分辨率和较低的频率分辨率，低频率分辨率只能得到谱包络，良好的时间分辨率适合用于分析和检验英语语音的发音
+# 长窗 窄带；短窗：宽带
