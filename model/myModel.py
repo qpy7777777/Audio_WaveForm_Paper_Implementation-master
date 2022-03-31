@@ -187,7 +187,7 @@ class ResBlock(torch.nn.Module):
 
 class CNNRes(torch.nn.Module):
 
-    def __init__(self, channels, conv_kernels, conv_strides, conv_padding, pool_padding, num_classes=10):
+    def __init__(self, channels, conv_kernels, conv_strides, conv_padding, pool_padding, num_classes=5):
         assert len(conv_kernels) == len(channels) == len(conv_strides) == len(conv_padding)
         super(CNNRes, self).__init__()
 
