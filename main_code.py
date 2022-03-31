@@ -7,58 +7,12 @@ import pandas as pd
 import os
 import time
 import copy
+import numpy as np
 from tensorboardX import SummaryWriter
-
+import seaborn as sns
 # CPU or GPU
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # sanity check
 
-# Focal Loss损失函数设计
-# class focal_loss(nn.Module):
-#     def __init__(self, alpha=0.25, gamma=2, num_classes = 5, size_average=True):
-#         """
-#         focal_loss损失函数, -α(1-yi)**γ *ce_loss(xi,yi)
-#         步骤详细的实现了 focal_loss损失函数.
-#         :param alpha:   阿尔法α,类别权重.      当α是列表时,为各类别权重,当α为常数时,类别权重为[α, 1-α, 1-α, ....],常用于 目标检测算法中抑制背景类 , retainnet中设置为0.25
-#         :param gamma:   伽马γ,难易样本调节参数. retainnet中设置为2
-#         :param num_classes:     类别数量
-#         :param size_average:    损失计算方式,默认取均值
-#         """
-#         super(focal_loss,self).__init__()
-#         self.size_average = size_average
-#         if isinstance(alpha,list):
-#             assert len(alpha)==num_classes   # α可以以list方式输入,size:[num_classes] 用于对不同类别精细地赋予权重
-#             print("Focal_loss alpha = {}, 将对每一类权重进行精细化赋值".format(alpha))
-#             self.alpha = torch.Tensor(alpha)
-#         else:
-#             assert alpha<1   #如果α为一个常数,则降低第一类的影响,在目标检测中为第一类
-#             print(" --- Focal_loss alpha = {} ,将对背景类进行衰减,请在目标检测任务中使用 --- ".format(alpha))
-#             self.alpha = torch.zeros(num_classes)
-#             self.alpha[0] += alpha
-#             self.alpha[1:] += (1-alpha) # α 最终为 [ α, 1-α, 1-α, 1-α, 1-α, ...] size:[num_classes]
-#         self.gamma = gamma
-#
-#     def forward(self, preds, labels):
-#         """
-#         focal_loss损失计算
-#         :param preds:   预测类别. size:[B,N,C] or [B,C]    分别对应与检测与分类任务, B 批次, N检测框数, C类别数
-#         :param labels:  实际类别. size:[B,N] or [B]
-#         :return:
-#         """
-#         # assert preds.dim()==2 and labels.dim()==1
-#         preds = preds.view(-1,preds.size(-1))
-#         self.alpha = self.alpha.to(preds.device)
-#         preds_softmax = F.softmax(preds, dim=1) # 这里并没有直接使用log_softmax, 因为后面会用到softmax的结果(当然你也可以使用log_softmax,然后进行exp操作)
-#         preds_logsoft = torch.log(preds_softmax)
-#         preds_softmax = preds_softmax.gather(1,labels.view(-1,1))   # 这部分实现nll_loss ( crossempty = log_softmax + nll )
-#         preds_logsoft = preds_logsoft.gather(1,labels.view(-1,1))
-#         self.alpha = self.alpha.gather(0,labels.view(-1))
-#         loss = -torch.mul(torch.pow((1-preds_softmax), self.gamma), preds_logsoft)  # torch.pow((1-preds_softmax), self.gamma) 为focal loss中 (1-pt)**γ
-#         loss = torch.mul(self.alpha, loss.t())
-#         if self.size_average:
-#             loss = loss.mean()
-#         else:
-#             loss = loss.sum()
-#         return loss
 def key_func(model, train_rate,criterion, train_loader,test_loader,optimizer, EPOCH):
     # 获得一个batch的数据
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.1)
@@ -68,14 +22,27 @@ def key_func(model, train_rate,criterion, train_loader,test_loader,optimizer, EP
         # 可视化一个batch的图像
         batch_x = b_x.squeeze(1).numpy()
         batch_y = b_y.numpy()
-        print(batch_x.shape)
+        # print(batch_x.shape) #(8, 5000)
         plt.figure(figsize=(12, 5))
         for ii in range(len(batch_y)):
             plt.subplot(4, 2, ii + 1)
-            librosa.display.waveplot(batch_x[ii, :], sr=10000)
+            # print(batch_x[ii, :].shape) #(5000,)
+            time_wave = np.arange(0, batch_x.shape[1]) / 10000
+            plt.plot(time_wave, batch_x[ii,:])
             plt.title(batch_y[ii], size=9)
             plt.axis("off")
             plt.subplots_adjust(wspace=0.05)
+        plt.savefig("plot.pdf")
+        plt.show()
+        # 可视化一个batch,将每列特征变量使用箱线图进行显示，对比不同类别的邮件在每个特制变量上的数据分布情况
+        # colname = spam.columns.values[:-1]
+        # print(len(colname), type(colname))
+        plt.figure(figsize=(20, 14))
+        for ii in range(36):
+            plt.subplot(6, 6, ii + 1)
+            sns.boxplot(x=batch_y, y=batch_x[:, ii])
+            plt.title(ii)
+        plt.subplots_adjust(hspace=0.6)
         plt.savefig("plot.pdf")
         plt.show()
     # 打印日志
