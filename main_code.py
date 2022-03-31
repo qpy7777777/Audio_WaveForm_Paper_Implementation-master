@@ -35,15 +35,13 @@ def key_func(model, train_rate,criterion, train_loader,test_loader,optimizer, EP
         plt.savefig("plot.pdf")
         plt.show()
         # 可视化一个batch,将每列特征变量使用箱线图进行显示，对比不同类别的邮件在每个特制变量上的数据分布情况
-        # colname = spam.columns.values[:-1]
-        # print(len(colname), type(colname))
         plt.figure(figsize=(20, 14))
         for ii in range(36):
             plt.subplot(6, 6, ii + 1)
             sns.boxplot(x=batch_y, y=batch_x[:, ii])
             plt.title(ii)
         plt.subplots_adjust(hspace=0.6)
-        plt.savefig("plot.pdf")
+        plt.savefig("xiangxian.pdf")
         plt.show()
     # 打印日志
     log_file = './log.txt'
