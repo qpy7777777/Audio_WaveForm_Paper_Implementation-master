@@ -68,7 +68,7 @@ def key_func(model, train_rate,criterion, train_loader,test_loader,optimizer, EP
         # 可视化一个batch的图像
         batch_x = b_x.squeeze(1).numpy()
         batch_y = b_y.numpy()
-        print(batch_y)
+        print(batch_x.shape)
         plt.figure(figsize=(12, 5))
         for ii in range(len(batch_y)):
             plt.subplot(4, 2, ii + 1)

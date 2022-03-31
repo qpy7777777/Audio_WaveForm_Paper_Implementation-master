@@ -24,7 +24,7 @@ if __name__ == "__main__":
         input_size = 5000
         hidden_dim = 5200
         layer_dim = 2
-        out_channels = 64
+        out_channels = 16
         model = CnnLSTM(input_size, hidden_dim, layer_dim, out_channels)
 
     batch_size = args.batchSize
