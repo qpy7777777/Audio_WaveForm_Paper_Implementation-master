@@ -6,13 +6,21 @@ from model.myModel import *
 from torch.utils.data import Dataset
 from util.preprocess import SoundDataset
 from main_code import key_func
-
+from loss_function import *
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Experiments')
     parser.add_argument('--model', default="M5", type=str, help='The model name')
     parser.add_argument('--batchSize', default=8, type=int, help='Batch size to use for train/test sets')
-
+    parser.add_argument('--loss_function', default="cross_entropy", type=str, help='the loss function')
     args = parser.parse_args()
+    # 损失函数选择
+    if args.loss_function == "focal_loss":
+        criterion = focal_loss()
+    elif args.model == "cross_entropy":
+        criterion = cross_entropy()
+    elif args.model == "nll_loss":
+        criterion = nll_loss()
+    # 模型选择
     if args.model == "M5":
         model = M5()
     elif args.model == "M18":
@@ -48,10 +56,10 @@ if __name__ == "__main__":
     print("Num Parameters:", sum([p.numel() for p in model.parameters()]))
 
     # create criterion and optimizer
-    criterion = nn.CrossEntropyLoss()
+    # criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(),
                                  lr=0.0001)  # by default, l2 regularization is implemented in the weight decay.
-    model_ft, train_process = key_func(model, 0.8, criterion, train_loader, test_loader,optimizer, EPOCH=5)
+    model_ft, train_process = key_func(model,0.8, criterion, train_loader, test_loader,optimizer, EPOCH=5)
     torch.save(model_ft, args.model+'.pt')
 
     ##可视化模型训练过程

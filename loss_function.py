@@ -1,3 +1,6 @@
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 # Focal Loss损失函数设计
 class focal_loss(nn.Module):
     def __init__(self, alpha=0.25, gamma=2, num_classes = 5, size_average=True):
@@ -45,3 +48,10 @@ class focal_loss(nn.Module):
         else:
             loss = loss.sum()
         return loss
+
+def nll_loss(output, target):
+    # loss for log_softmax
+    return F.nll_loss(output, target)
+
+def cross_entropy(output, target):
+    return F.cross_entropy(output, target)

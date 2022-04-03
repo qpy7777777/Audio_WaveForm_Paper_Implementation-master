@@ -13,7 +13,7 @@ import seaborn as sns
 # CPU or GPU
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # sanity check
 
-def key_func(model, train_rate,criterion, train_loader,test_loader,optimizer, EPOCH):
+def key_func(model,train_rate,criterion, train_loader,test_loader,optimizer, EPOCH):
     # 获得一个batch的数据
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.1)
     for step, (b_x, b_y) in enumerate(train_loader):  # torch.Size([64, 1, 28, 28])
