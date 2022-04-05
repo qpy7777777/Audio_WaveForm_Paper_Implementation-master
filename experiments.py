@@ -10,15 +10,18 @@ from loss_function import *
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Experiments')
     parser.add_argument('--model', default="M5", type=str, help='The model name')
+    parser.add_argument('--n', default=2, type=int, help='Max number of epochs')
     parser.add_argument('--batchSize', default=8, type=int, help='Batch size to use for train/test sets')
-    parser.add_argument('--loss_function', default="cross_entropy", type=str, help='the loss function')
+    parser.add_argument('--criterion', default="cross_entropy", type=str, help='the loss function')
     args = parser.parse_args()
     # 损失函数选择
-    if args.loss_function == "focal_loss":
+    if args.criterion == "focal_loss":
+        focal_loss = CrossEntropyFocalLoss()
         criterion = focal_loss()
-    elif args.model == "cross_entropy":
+    elif args.criterion == "cross_entropy":
+        cross_entropy = CrossEntropyLoss()
         criterion = cross_entropy()
-    elif args.model == "nll_loss":
+    elif args.criterion == "nll_loss":
         criterion = nll_loss()
     # 模型选择
     if args.model == "M5":
@@ -36,19 +39,21 @@ if __name__ == "__main__":
         model = CnnLSTM(input_size, hidden_dim, layer_dim, out_channels)
 
     batch_size = args.batchSize
-
+    num_epochs = args.n
     # 数据路径
-    root_data_dir = r"12_new/"
+    # root_data_dir = r"12_new/"
+    root_data_dir = r"ESC/"
 
     # 读取文件
-    train_data = SoundDataset((os.path.join(root_data_dir, "train")))
+    # train_data = SoundDataset((os.path.join(root_data_dir, "train")))
+    train_data = SoundDataset(root_data_dir)
 
     train_loader = torch.utils.data.DataLoader(train_data, batch_size=args.batchSize,
                                                num_workers=0, shuffle=True)
     print("train_loader的batch数量为：", len(train_loader))
 
-    test_data = SoundDataset((os.path.join(root_data_dir, "test")))
-    test_loader = torch.utils.data.DataLoader(test_data, batch_size=args.batchSize, num_workers=0)
+    # test_data = SoundDataset((os.path.join(root_data_dir, "test")))
+    # test_loader = torch.utils.data.DataLoader(test_data, batch_size=args.batchSize, num_workers=0)
 
     # apply initializer
     model.apply(init_weights)
@@ -56,10 +61,10 @@ if __name__ == "__main__":
     print("Num Parameters:", sum([p.numel() for p in model.parameters()]))
 
     # create criterion and optimizer
-    # criterion = nn.CrossEntropyLoss()
+    criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(),
-                                 lr=0.0001)  # by default, l2 regularization is implemented in the weight decay.
-    model_ft, train_process = key_func(model,0.8, criterion, train_loader, test_loader,optimizer, EPOCH=5)
+                                 lr=0.01, weight_decay=1e-4)  # by default, l2 regularization is implemented in the weight decay.
+    model_ft, train_process = key_func(model,0.8, criterion, train_loader,optimizer, EPOCH=num_epochs)
     torch.save(model_ft, args.model+'.pt')
 
     ##可视化模型训练过程

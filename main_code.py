@@ -13,36 +13,38 @@ import seaborn as sns
 # CPU or GPU
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # sanity check
 
-def key_func(model,train_rate,criterion, train_loader,test_loader,optimizer, EPOCH):
+def key_func(model,train_rate,criterion, train_loader,optimizer, EPOCH):
     # 获得一个batch的数据
+    model.to(device)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.1)
-    for step, (b_x, b_y) in enumerate(train_loader):  # torch.Size([64, 1, 28, 28])
-        if step > 0:
-            break
-        # 可视化一个batch的图像
-        batch_x = b_x.squeeze(1).numpy()
-        batch_y = b_y.numpy()
-        # print(batch_x.shape) #(8, 5000)
-        plt.figure(figsize=(12, 5))
-        for ii in range(len(batch_y)):
-            plt.subplot(4, 2, ii + 1)
-            # print(batch_x[ii, :].shape) #(5000,)
-            time_wave = np.arange(0, batch_x.shape[1]) / 10000
-            plt.plot(time_wave, batch_x[ii,:])
-            plt.title(batch_y[ii], size=9)
-            plt.axis("off")
-            plt.subplots_adjust(wspace=0.05)
-        plt.savefig("plot.pdf")
-        plt.show()
-        # 可视化一个batch,将每列特征变量使用箱线图进行显示，对比不同类别的邮件在每个特制变量上的数据分布情况
-        plt.figure(figsize=(20, 14))
-        for ii in range(36):
-            plt.subplot(6, 6, ii + 1)
-            sns.boxplot(x=batch_y, y=batch_x[:, ii])
-            plt.title(ii)
-        plt.subplots_adjust(hspace=0.6)
-        plt.savefig("xiangxian.pdf")
-        plt.show()
+    # for step, (b_x, b_y) in enumerate(train_loader):  # torch.Size([64, 1, 28, 28])
+    #     if step > 0:
+    #         break
+    #     # 可视化一个batch的图像
+    #     batch_x = b_x.squeeze(1).numpy()
+    #     batch_y = b_y.numpy()
+    #     print(batch_y)
+    #     # print(batch_x.shape) #(8, 5000)
+    #     plt.figure(figsize=(12, 5))
+    #     for ii in range(len(batch_y)):
+    #         plt.subplot(4, 2, ii + 1)
+    #         # print(batch_x[ii, :].shape) #(5000,)
+    #         time_wave = np.arange(0, batch_x.shape[1]) / 10000
+    #         plt.plot(time_wave, batch_x[ii,:])
+    #         plt.title(batch_y[ii], size=9)
+    #         plt.axis("off")
+    #         plt.subplots_adjust(wspace=0.05)
+    #     plt.savefig("plot.pdf")
+    #     plt.show()
+    #     # 可视化一个batch,将每列特征变量使用箱线图进行显示，对比不同类别的邮件在每个特制变量上的数据分布情况
+    #     plt.figure(figsize=(20, 14))
+    #     for ii in range(36):
+    #         plt.subplot(6, 6, ii + 1)
+    #         sns.boxplot(x=batch_y, y=batch_x[:, ii])
+    #         plt.title(ii)
+    #         plt.subplots_adjust(hspace=0.6)
+    #     plt.savefig("xiangxian.pdf")
+    #     plt.show()
     # 打印日志
     log_file = './log.txt'
     writer = SummaryWriter()

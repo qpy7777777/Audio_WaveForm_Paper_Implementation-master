@@ -43,9 +43,9 @@ class M5(nn.Module):  # this is m5 architecture
         x = self.pool3(x)
         x = self.conv4(x)
         x = F.relu(self.bn4(x))
-        x_4 = self.pool4(x)
+        x = self.pool4(x)
         # print(x.shape)#[8, 512, 5000]
-        x = self.avgPool(x_4)
+        x = self.avgPool(x)
         x = self.flatten(x)  # replaces permute(0,2,1) with flatten
         x = self.fc1(x)  # output layer ([n,1, 10] i.e 10 probs. for each audio files)
         # print(x.shape)#[8, 5]
