@@ -62,10 +62,10 @@ class SoundDataset(Dataset):
 
     def __getitem__(self, index):
         audio = self.audio_name[index]  # + '.wav'
-        sound, sample = librosa.load(audio,sr=None)#重采样
-        sound = Normalize(sound)
-        soundData = torch.Tensor(sound)
-        return soundData, self.labels[index]
+        audio, sample = librosa.load(audio,sr=10000) # 重采样
+        audio = Normalize(audio)
+        audio = torch.Tensor(audio)
+        return audio, self.labels[index]
 
     def __len__(self):
         return len(self.audio_name)

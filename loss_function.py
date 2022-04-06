@@ -1,3 +1,5 @@
+import math
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -25,7 +27,6 @@ class CrossEntropyFocalLoss(nn.Module):
             self.alpha[0] += alpha
             self.alpha[1:] += (1 - alpha)  # α 最终为 [ α, 1-α, 1-α, 1-α, 1-α, ...] size:[num_classes]
         self.gamma = gamma
-
     def forward(self, logits, target):
         # logits: [N, C, H, W], target: [N, H, W]
         # loss = sum(-y_i * log(c_i))
@@ -51,12 +52,6 @@ class CrossEntropyFocalLoss(nn.Module):
         elif self.reduction == 'sum':
             loss = loss.sum()
         return loss
-
-def nll_loss():
-    # loss for log_softmax
-    loss = nn.NLLLoss()
-    return loss
-
 class CrossEntropyLoss(torch.nn.Module):
     def __init__(self, reduction='mean'):
         super(CrossEntropyLoss, self).__init__()
@@ -73,6 +68,53 @@ class CrossEntropyLoss(torch.nn.Module):
         logits = F.log_softmax(logits, 1)
         logits = logits.gather(1, target)   # [NHW, 1]
         loss = -1 * logits
+        if self.reduction == 'mean':
+            loss = loss.mean()
+        elif self.reduction == 'sum':
+            loss = loss.sum()
+        return loss
+class define_Loss(torch.nn.Module):
+    def __init__(self, weight=0.25,num_classes=5,reduction='mean'):
+        super(define_Loss, self).__init__()
+        self.reduction = reduction
+        self.weight = torch.zeros(num_classes)
+        self.weight[0:num_classes-1] = weight
+        self.weight[num_classes-1] = 1-weight
+    def forward(self, logits, target):
+        if logits.dim() > 2:
+            logits = logits.view(logits.size(0), logits.size(1), -1)  # [N, C, HW]
+            logits = logits.transpose(1, 2)   # [N, HW, C]
+            logits = logits.contiguous().view(-1, logits.size(2))    # [NHW, C]
+        target = target.view(-1, 1)    # [NHW，1]
+
+        logits = F.log_softmax(logits, 1)
+        logits = logits.gather(1, target)   # [NHW, 1]
+        if self.weight is not None:
+            # alpha: [C]
+            weight = self.weight.gather(0, target.view(-1))  # [NHW]
+            log_gt = logits * weight
+
+        loss = -1 * log_gt
+        if self.reduction == 'mean':
+            loss = loss.mean()
+        elif self.reduction == 'sum':
+            loss = loss.sum()
+        return loss
+class Exponentially_Loss(torch.nn.Module):
+    def __init__(self,reduction='mean'):
+        super(define_Loss, self).__init__()
+        self.reduction = reduction
+
+    def forward(self, logits, target):
+        if logits.dim() > 2:
+            logits = logits.view(logits.size(0), logits.size(1), -1)  # [N, C, HW]
+            logits = logits.transpose(1, 2)   # [N, HW, C]
+            logits = logits.contiguous().view(-1, logits.size(2))    # [NHW, C]
+        target = target.view(-1, 1)    # [NHW，1]
+
+        logits = F.log_softmax(logits, 1)
+        logits = logits.gather(1, target)   # [NHW, 1]
+        loss = -1 * math.e ** (-logits) * logits
         if self.reduction == 'mean':
             loss = loss.mean()
         elif self.reduction == 'sum':

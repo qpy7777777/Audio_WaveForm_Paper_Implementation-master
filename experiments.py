@@ -1,6 +1,5 @@
 import argparse
-import torch
-import os
+# experiments.py --model M5 --n 2 --batchSize 8 --criterion focal_loss
 import matplotlib.pyplot as plt
 from model.myModel import *
 from torch.utils.data import Dataset
@@ -21,8 +20,12 @@ if __name__ == "__main__":
     elif args.criterion == "cross_entropy":
         cross_entropy = CrossEntropyLoss()
         criterion = cross_entropy()
-    elif args.criterion == "nll_loss":
-        criterion = nll_loss()
+    elif args.criterion == "define_Loss":
+        define_loss = define_Loss()
+        criterion = define_loss()
+    elif args.criterion == "exponentially_Loss":
+        exponentially_Loss = Exponentially_Loss()
+        criterion = exponentially_Loss()
     # 模型选择
     if args.model == "M5":
         model = M5()
@@ -42,7 +45,7 @@ if __name__ == "__main__":
     num_epochs = args.n
     # 数据路径
     # root_data_dir = r"12_new/"
-    root_data_dir = r"ESC/"
+    root_data_dir = r"data/"
 
     # 读取文件
     # train_data = SoundDataset((os.path.join(root_data_dir, "train")))

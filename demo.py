@@ -147,12 +147,48 @@ print(target)
 # print(output)
 # print(F.cross_entropy(input,target))
 # print(F.nll_loss(input,target))
-print(F.cross_entropy(input, target))
-loss_function = CrossEntropyLoss()
-loss= loss_function(input,target)
-print(loss)
-loss_focal = CrossEntropyFocalLoss()
-focal_loss = loss_focal(input,target)
-print(focal_loss)
+# print(F.cross_entropy(input, target))
+# loss_function = CrossEntropyLoss()
+# loss= loss_function(input,target)
+# print(loss)
+# loss_focal = CrossEntropyFocalLoss()
+# focal_loss = loss_focal(input,target)
+# print(focal_loss)
+import math
+# print(math.e ** (0) * 2)
+import wave
+import numpy as np
+audio_list = ["data/0/data_CH1_1.wav","data/1/data_CH1.wav","data/2/5511300F.wav",
+              "data/3/5702100A.wav","data/4/7202100Q.wav"]
+file = wave.open(audio_list[0], 'r')
+params = file.getparams()
+# 声道，采样宽度，帧速率，帧数，唯一标识，无损
+nchannels, sampwidth, framerate, nframes = params[:4]
+# print(nchannels,sampwidth, framerate, nframes)
+str_data = file.readframes(nframes)
+file.close()
+str_data = np.frombuffer(str_data, dtype=np.short)
+temp_data = str_data.T
+print(str_data[:10])
+print(temp_data[:10])
+    # 1 2 17067 4266751
+    # 1 2 17067 5120100
+    # 1 2 14900 354172
+    # 1 2 30000 35987
+    # 1 2 10240 29040
+import os
+import glob
+file_path = "data"
+cate = [file_path + "/" + x for x in os.listdir(file_path) if os.path.isdir(file_path + "/" + x)]
+labels = []
+audio_name = []
+for idx, folder in enumerate(cate):
+    # print(folder) data/0
+    for audio in glob.glob(folder + '/*.wav'):
+        audio_name.append(os.path.join(audio,"\n"))
+        x = os.path.basename(folder)
+        labels.append(os.path.join(x,"\n"))
+with open("labels.txt","w") as f:
+    f.write(''.join(labels))
 
 
